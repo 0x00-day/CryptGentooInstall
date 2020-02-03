@@ -35,7 +35,7 @@
 `cd /mnt/gentoo`  
 
 `cd /mnt/gentoo`  
-`links www.gentoo.org/downloads` # Качаем stage3  
+`links www.gentoo.org/downloads`  
 `tar xvpf stage3-*.xz --xattrs`  
 
 `mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf`  
@@ -76,22 +76,7 @@
 `eselect locale list`  
 `eselect locale set (X)`  
 `source /etc/profile`  
-`export PS1="(chroot) ${PS1}"`
-`nano /etc/fstab`  
-/dev/sdX1 /boot vfat noauto,noatime 1 2  
-/dev/sdX2 /boot/efi vfat noauto,noatime 1 2  
-/dev/sdX3 none swap sw 0 0  
-/dev/mapper/crypto / ext4 defaults 0 0  
-crypto /dev/sdb3 none  
-`nano /etc/default/grub`  
-GRUB_TIMEOUT=15
-GRUB_CMDLINE_LINUX="crypt_root=UUID="f2389a1f-de2c-4440-8747-05b26af21e39" real_root=UUID="0fc9de2b-fb0f-4892-b9a3-80d19a7e193c" rootfstype=ext4" #crypt-root=<UUID /dev/sdX4> real_root=<UUID /dev/mapper/root (NOT crypto!)>
-`nano /etc/conf.d/dmcrypt`  
-target=/dev/mapper/crypto  
-source='/dev/sdb3'  
-Чтобы узнать UUID:  
-`blkid |grep sda2`  
-`blkid |grep sda3`  
+`export PS1="(chroot) ${PS1}"`  
   
 ## 5. Установка Grub:2 и компиляция ядра
 `emerge --sync`  
@@ -100,7 +85,30 @@ source='/dev/sdb3'
 `rc-update add mdraid boot` 
 `rc-update add dmcrypt`  
 `genkernel all`  
+## 6. Настройка конфигов Grub:2, dmcrypt и fstab.
+`nano /etc/fstab`  
+Приводим к такому виду(индивидуально):  
+/dev/sdX1 /boot vfat noauto,noatime 1 2  
+/dev/sdX2 /boot/efi vfat noauto,noatime 1 2  
+/dev/sdX3 none swap sw 0 0  
+/dev/mapper/crypto / ext4 defaults 0 0  
+crypto /dev/sdb3 none  
   
+`nano /etc/default/grub`  
+Приводим к такому виду(индивидуально):  
+GRUB_TIMEOUT=15
+GRUB_CMDLINE_LINUX="crypt_root=UUID="f2389a1f-de2c-4440-8747-05b26af21e39" real_root=UUID="0fc9de2b-fb0f-4892-b9a3-80d19a7e193c" rootfstype=ext4" #crypt-root=<UUID /dev/sdX4> real_root=<UUID /dev/mapper/root (NOT crypto!)>
+  
+`nano /etc/conf.d/dmcrypt`  
+Приводим к такому виду(индивидуально):  
+target=/dev/mapper/crypto  
+source='/dev/sdb3'  
+  
+Чтобы узнать UUID:  
+`blkid |grep sda2`  
+`blkid |grep sda3`  
+  
+## 6. Установка Grub:2 на диск
 `mkdir /boot/efi/`  
 `mount /dev/sdX1 /boot/`  
 `mount /dev/sdX2 /boot/efi`
@@ -109,12 +117,11 @@ source='/dev/sdb3'
 `grub-install --efi-directory=/boot/efi/ --target=x86_64-efi /dev/sda`  
 `grub-mkconfig -o /boot/grub/grub.cfg`  
   
-## 6. Установка пароля root и перезагрузка системы, на этом этапе отключаем флешку от ПК
+## 7. Установка пароля root и перезагрузка системы, на этом этапе отключаем флешку от ПК
 `passwd`  
 `exit`  
 `cd`  
 `umount /mnt/gentoo/boot/efi/`  
 `umount -l /mnt/gentoo/dev{/shm,/pts,}`  
 `umount -R /mnt/gentoo`  
-  
-## 8. Установка дополнительного софта + XFCE + XORG
+`reboot`  

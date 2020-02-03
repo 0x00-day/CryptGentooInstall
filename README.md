@@ -82,7 +82,7 @@
 `emerge --sync`  
 `echo -e "sys-boot/grub mount\nsys-apps/util-linux static-libs" > /etc/portage/package.use/myuse`  
 `emerge -v sys-kernel/genkernel sys-kernel/linux-firmware sys-boot/os-prober dev-libs/libisoburn sys-fs/mdadm grub gentoo-   sources net-misc/dhcpcd app-admin/syslog-ng vixie-cron sys-fs/e2fsprogs`  
-`rc-update add mdraid boot` 
+`rc-update add mdraid boot`  
 `rc-update add dmcrypt`  
 `genkernel all`  
 ## 6. Настройка конфигов Grub:2, dmcrypt и fstab.

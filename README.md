@@ -12,15 +12,11 @@
 `date 032814552016` # Установить дату 03.28.2016 14:55  
 
 `cfdisk /dev/sdX` # Размечаем диск 
-Должно получиться что-то такое:  
-/dev/sdX1      2048   1054719   1052672  514M EFI System  
-/dev/sdX2   1054720  34256895  33202176 15.9G Linux swap  
-/dev/sdX3  34256896 234441614 200184719 95.5G Linux filesystem  
 
-**Scheme for mount**:  
+**Размечаем вот так**:  
 /dev/sdX1 -> /boot #vfat  
 /dev/sdX2 -> /boot/efi #vfat  
-/dev/sdX3 -> swap
+/dev/sdX3 -> swap  
 /dev/sdX4 -> /dev/mapper/crypto #ext4  
 
 `mkfs.vfat /dev/sdX1`  
@@ -28,7 +24,7 @@
 `mkswap /dev/sdX3`  
 `swapon /dev/sdX3`  
 `cryptsetup -s 512 luksFormat /dev/sdX4`  
-`cryptsetup luksOpen /dev/sdX4 crypto`
+`cryptsetup luksOpen /dev/sdX4 crypto`  
 `mkfs.ext4 /dev/mapper/crypto`  
  
 `mount /dev/mapper/crypto /mnt/gentoo`  
@@ -56,7 +52,7 @@
 `export PS1="(chroot) ${PS1}"`  
   
 ## 4. Настройка Gentoo
-`nano /etc/portage/make.conf`
+`nano /etc/portage/make.conf`  
 Добавляем строки :  
 *CFLAGS="-march=native -O2 -pipe"*  
 *CXXFLAGS="${CFLAGS}"*  
@@ -67,7 +63,7 @@
 `eselect profile list`  
 `eselect profile set (X)`  
 `echo "Europe/Moscow" > /etc/timezone`  
-`emerge --config sys-libs/timezone-data`  
+`emerge --config sys-libs/timezone-data`   
 `nano /etc/locale.gen`  
 Раскомментировать:  
 *en_US ISO-8859-1*  
@@ -92,7 +88,7 @@
 /dev/sdX2 /boot/efi vfat noauto,noatime 1 2  
 /dev/sdX3 none swap sw 0 0  
 /dev/mapper/crypto / ext4 defaults 0 0  
-crypto /dev/sdb3 none  
+crypto /dev/sdX3 none  
   
 `nano /etc/default/grub`  
 Приводим к такому виду(индивидуально):  
@@ -102,7 +98,7 @@ GRUB_CMDLINE_LINUX="crypt_root=UUID="f2389a1f-de2c-4440-8747-05b26af21e39" real_
 `nano /etc/conf.d/dmcrypt`  
 Приводим к такому виду(индивидуально):  
 target=/dev/mapper/crypto  
-source='/dev/sdb3'  
+source='/dev/sdX3'  
   
 Чтобы узнать UUID:  
 `blkid |grep sda2`  
